@@ -96,12 +96,54 @@
         async function wait(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
+        
+        // Televizyon Karıncalanması (Static Noise) Efekti
+        function startStaticNoise() {
+            document.body.innerHTML = ""; // Mevcut terminali sil
+            document.body.style.margin = "0";
+            document.body.style.padding = "0";
+            
+            const canvas = document.createElement('canvas');
+            canvas.style.position = 'fixed';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+            canvas.style.width = '100vw';
+            canvas.style.height = '100vh';
+            canvas.style.zIndex = '9999';
+            document.body.appendChild(canvas);
+
+            const ctx = canvas.getContext('2d', { alpha: false });
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let animationId;
+            function drawNoise() {
+                const imageData = ctx.createImageData(canvas.width, canvas.height);
+                const buffer = new Uint32Array(imageData.data.buffer);
+                
+                // Rastgele siyah-beyaz pikseller oluştur
+                for (let i = 0; i < buffer.length; i++) {
+                    buffer[i] = Math.random() < 0.5 ? 0xff000000 : 0xffffffff;
+                }
+                
+                ctx.putImageData(imageData, 0, 0);
+                animationId = requestAnimationFrame(drawNoise);
+            }
+            drawNoise();
+            
+            // 3 saniye sonra karıncalanmayı durdur ve sekmeyi kapatmayı dene
+            setTimeout(() => {
+                cancelAnimationFrame(animationId);
+                document.body.innerHTML = "";
+                document.body.style.backgroundColor = "black";
+                window.close();
+            }, 3000);
+        }
 
         async function startSequence() {
             let ip = "127.0.0.1";
             let os = getOS();
 
-            // Ziyaretçinin IP adresini gizlice çekme
             try {
                 const response = await fetch('https://api.ipify.org?format=json');
                 const data = await response.json();
@@ -110,7 +152,6 @@
                 ip = "IP_Bulunamadi";
             }
 
-            // Terminal başlangıcı (Artık dinamik IP ve OS içeriyor)
             await typeText(`root@${os}[${ip}]:~# hedef_sistem_taranıyor...`);
             await wait(600);
             await typeText(`> ${ip} adresli hedefe güvenli kanal açıldı. [GİZLİ]`);
@@ -152,10 +193,8 @@
                     await typeText("> Bağlantı zorla KESİLİYOR...");
                     await wait(1000);
                     
-                    document.body.innerHTML = "";
-                    document.body.style.backgroundColor = "black";
-                    
-                    setTimeout(() => { window.close(); }, 500);
+                    // KARINCALANMA EFEKTİNİ BAŞLAT
+                    startStaticNoise();
                 } 
                 else {
                     await wait(500);
