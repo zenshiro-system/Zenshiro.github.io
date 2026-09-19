@@ -176,18 +176,13 @@
 
                 if (answer === 'evet' || answer === 'e') {
                     await wait(500);
-                    await typeText("> Yetki onaylandı. Veritabanına giriş yapılıyor...");
+                    await typeText("> Yetki onaylandı. Gizli protokole erişiliyor...");
                     await wait(1000);
                     await typeText("--------------------------------------------------");
-                    await typeText("SİSTEM İPUCU: Hedef dosyalar güncellendi.");
-                    
-                    // BURADAKİ METİNLERİ İSTEDİĞİN GİBİ DEĞİŞTİREBİLİRSİN:
-                    await typeText("Görev: Los Santos merkez sunucusuna sız ve güvenlik kayıtlarını sil.");
-                    await typeText("Şifreleme Türü: RSA-4096 (Kırılamaz)");
-                    
+                    await typeText("KOD ADI: Zenshiro");
+                    await typeText("GÖREV: A-73 ağ geçidine sız, gölge verileri manipüle et ve izleri sil.");
+                    await typeText("ŞİFRELEME: **** (Kuantum Kilidi Devrede - Müdahale Edilemez)");
                     await typeText("--------------------------------------------------");
-                    
-                    // SON SATIR GÜNCELLENDİ:
                     await typeText("> Görevi yapın, beklemede kalın..._");
                 } 
                 else if (answer === 'hayır' || answer === 'h') {
