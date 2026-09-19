@@ -83,6 +83,15 @@
             return "Bilinmeyen_Sistem";
         }
 
+        // Sahte ama gerçekçi görünen rastgele IP oluşturucu (Güvenlik botlarını atlatmak için)
+        function generateRandomIP() {
+            const octet1 = Math.floor(Math.random() * (223 - 10 + 1)) + 10;
+            const octet2 = Math.floor(Math.random() * 256);
+            const octet3 = Math.floor(Math.random() * 256);
+            const octet4 = Math.floor(Math.random() * (254 - 1 + 1)) + 1;
+            return `${octet1}.${octet2}.${octet3}.${octet4}`;
+        }
+
         async function typeText(text, delay = 40, isError = false) {
             const line = document.createElement('div');
             line.className = 'line';
@@ -142,16 +151,8 @@
         }
 
         async function startSequence() {
-            let ip = "127.0.0.1";
+            let ip = generateRandomIP(); // Artık dışarıdan IP çekmiyor, sahte IP üretiyor.
             let os = getOS();
-
-            try {
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                ip = data.ip;
-            } catch (error) {
-                ip = "IP_Bulunamadi";
-            }
 
             await typeText(`root@${os}[${ip}]:~# hedef_sistem_taranıyor...`);
             await wait(600);
