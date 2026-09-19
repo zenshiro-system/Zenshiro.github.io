@@ -6,42 +6,162 @@
     <title>Terminal | Root Access</title>
     <style>
         body {
-            background-color: #0a0a0a;
+            background-color: #050505;
             color: #00ff00;
             font-family: 'Courier New', Courier, monospace;
             padding: 20px;
+            margin: 0;
+            overflow: hidden;
+            font-size: 16px;
         }
-        .container {
-            border: 1px solid #00ff00;
-            padding: 20px;
-            max-width: 800px;
+        #terminal {
+            max-width: 900px;
             margin: 0 auto;
-            box-shadow: 0 0 15px #00ff00;
         }
-        h1 {
-            border-bottom: 1px dashed #00ff00;
-            padding-bottom: 10px;
-            font-size: 1.5rem;
-        }
-        p {
-            line-height: 1.6;
+        .line {
+            margin: 10px 0;
+            line-height: 1.5;
+            text-shadow: 0 0 5px #00ff00;
         }
         .cursor {
-            animation: blink 1s infinite;
+            display: inline-block;
+            width: 10px;
+            height: 1.2em;
+            background-color: #00ff00;
+            vertical-align: text-bottom;
+            animation: blink 1s step-end infinite;
         }
         @keyframes blink {
             0%, 100% { opacity: 1; }
             50% { opacity: 0; }
         }
+        /* Kullanıcı giriş alanı tasarımı */
+        #input-line {
+            display: flex;
+            align-items: center;
+        }
+        input {
+            background: transparent;
+            border: none;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            outline: none;
+            width: 100%;
+            text-shadow: 0 0 5px #00ff00;
+            margin-left: 10px;
+        }
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>root@hacker-sistemi:~# _</h1>
-        <p>> Sisteme güvenli giriş yapıldı...</p>
-        <p>> Hoş geldin. Burası benim kişisel siber güvenlik notlarımın ve projelerimin olduğu yer.</p>
-        <p>> Veritabanı bağlantısı: <strong>[AKTİF]</strong></p>
-        <p>> Yakında yeni içerikler yüklenecek...<span class="cursor">_</span></p>
+    <div id="terminal">
+        <div id="output"></div>
+        <div id="input-line" class="hidden">
+            <span id="prompt-text">> Hazır mısın? (Evet/Hayır): </span>
+            <input type="text" id="user-input" autocomplete="off" autofocus>
+        </div>
     </div>
+
+    <script>
+        const output = document.getElementById('output');
+        const inputLine = document.getElementById('input-line');
+        const userInput = document.getElementById('user-input');
+
+        // CMD tarzı yazı yazma animasyonu
+        async function typeText(text, delay = 35) {
+            const line = document.createElement('div');
+            line.className = 'line';
+            output.appendChild(line);
+
+            for (let i = 0; i < text.length; i++) {
+                line.textContent += text.charAt(i);
+                window.scrollTo(0, document.body.scrollHeight); // Ekranı aşağı kaydır
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+            return line;
+        }
+
+        async function wait(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Açılış sekansı
+        async function startSequence() {
+            await typeText("root@rocketlii:~# baðlantı_başlatılıyor...");
+            await wait(600);
+            await typeText("> Şifreli kanala erişim sağlandı. [GİZLİ]");
+            await wait(800);
+            await typeText("> Kimlik doğrulanıyor... BAŞARILI.");
+            await wait(1000);
+            
+            inputLine.classList.remove('hidden');
+            userInput.focus();
+        }
+
+        // Kullanıcı cevabını dinleme
+        userInput.addEventListener('keypress', async function(e) {
+            if (e.key === 'Enter') {
+                const answer = this.value.trim().toLowerCase();
+                inputLine.classList.add('hidden'); // Soru satırını gizle
+                
+                const echo = document.createElement('div');
+                echo.className = 'line';
+                echo.textContent = "> Hazır mısın? (Evet/Hayır): " + answer;
+                output.appendChild(echo);
+
+                if (answer === 'evet' || answer === 'e') {
+                    // EVET SENARYOSU
+                    await wait(500);
+                    await typeText("> Yetki onaylandı. Veritabanına giriş yapılıyor...");
+                    await wait(1000);
+                    await typeText("--------------------------------------------------");
+                    await typeText("SİSTEM İPUCU: Hedef dosyalar güncellendi.");
+                    await typeText("Görev: Teo De Luca profilini ve bağlantılarını incele.");
+                    await typeText("Şifreleme Türü: SHA-256");
+                    await typeText("--------------------------------------------------");
+                    await typeText("> Beklemede kalın..._");
+                } 
+                else if (answer === 'hayır' || answer === 'h') {
+                    // HAYIR SENARYOSU
+                    await wait(500);
+                    await typeText("> İşlem reddedildi. Güvenlik protokolü devreye giriyor...");
+                    await wait(1000);
+                    await typeText("> İZİNSİZ GİRİŞ GİRİŞİMİ TESPİT EDİLDİ!");
+                    await wait(500);
+                    await typeText("> Bağlantı zorla KESİLİYOR...");
+                    await wait(1000);
+                    
+                    // Ekranı kapatma / çökertme efekti
+                    document.body.innerHTML = "";
+                    document.body.style.backgroundColor = "black";
+                    
+                    // Tarayıcı sekmesini kapatmayı dener (Tarayıcı izin verirse çalışır)
+                    setTimeout(() => {
+                        window.close();
+                    }, 500);
+                } 
+                else {
+                    // YANLIŞ CEVAP SENARYOSU
+                    await wait(500);
+                    await typeText("> HATA: Geçersiz komut algılandı. Sistem kilitleniyor.");
+                    await wait(800);
+                    document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:20%; font-family:Courier New;'>Kritik Hata: SİSTEM KİLİTLENDİ</h1>";
+                }
+            }
+        });
+
+        // Sayfa yüklendiğinde animasyonu başlat
+        window.onload = startSequence;
+        
+        // Ekranda herhangi bir yere tıklanırsa tekrar klavye girişine odaklansın
+        document.body.addEventListener('click', () => {
+            if(!inputLine.classList.contains('hidden')) {
+                userInput.focus();
+            }
+        });
+    </script>
 </body>
 </html>
