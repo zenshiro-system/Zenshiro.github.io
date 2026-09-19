@@ -11,7 +11,7 @@
             font-family: 'Courier New', Courier, monospace;
             padding: 20px;
             margin: 0;
-            overflow: hidden;
+            overflow-x: hidden;
             font-size: 16px;
         }
         #terminal {
@@ -19,9 +19,14 @@
             margin: 0 auto;
         }
         .line {
-            margin: 10px 0;
-            line-height: 1.5;
+            margin: 5px 0;
+            line-height: 1.2;
             text-shadow: 0 0 5px #00ff00;
+            word-wrap: break-word;
+        }
+        .error-line {
+            color: #ff3333;
+            text-shadow: 0 0 5px #ff0000;
         }
         .cursor {
             display: inline-block;
@@ -38,6 +43,7 @@
         #input-line {
             display: flex;
             align-items: center;
+            margin-top: 10px;
         }
         input {
             background: transparent;
@@ -69,7 +75,6 @@
         const inputLine = document.getElementById('input-line');
         const userInput = document.getElementById('user-input');
 
-        // İşletim sistemini tespit etme
         function getOS() {
             let userAgent = window.navigator.userAgent;
             if (userAgent.indexOf("Windows") !== -1) return "Windows_PC";
@@ -80,9 +85,10 @@
             return "Bilinmeyen_Sistem";
         }
 
-        async function typeText(text, delay = 35) {
+        async function typeText(text, delay = 35, isError = false) {
             const line = document.createElement('div');
             line.className = 'line';
+            if (isError) line.classList.add('error-line');
             output.appendChild(line);
 
             for (let i = 0; i < text.length; i++) {
@@ -97,65 +103,52 @@
             return new Promise(resolve => setTimeout(resolve, ms));
         }
         
-        // Ekran Çatlaması ve Kapanması (Cracked Screen) Efekti
-        function startCrackedScreen() {
-            document.body.innerHTML = ""; // Mevcut terminali sil
-            document.body.style.margin = "0";
-            document.body.style.padding = "0";
-            document.body.style.backgroundColor = "#050505";
+        // GERÇEKÇİ KERNEL PANIC (SİSTEM ÇÖKME) EFEKTİ
+        function startKernelPanic() {
+            document.body.style.backgroundColor = "#000";
             
-            const canvas = document.createElement('canvas');
-            canvas.style.position = 'fixed';
-            canvas.style.top = '0';
-            canvas.style.left = '0';
-            canvas.style.width = '100vw';
-            canvas.style.height = '100vh';
-            canvas.style.zIndex = '9999';
-            document.body.appendChild(canvas);
-
-            const ctx = canvas.getContext('2d', { alpha: true });
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-            // Çatlakları çiz
-            function drawCrack(x, y, segments, branchProbability) {
-                ctx.beginPath();
-                ctx.moveTo(x, y);
-                let currentX = x;
-                let currentY = y;
-                for (let i = 0; i < segments; i++) {
-                    const length = Math.random() * 20 + 10;
-                    const angle = Math.random() * Math.PI * 2;
-                    currentX += Math.cos(angle) * length;
-                    currentY += Math.sin(angle) * length;
-                    ctx.lineTo(currentX, currentY);
-                    if (Math.random() < branchProbability && i < segments - 2) {
-                        drawCrack(currentX, currentY, segments - i - 1, branchProbability * 0.5);
-                    }
+            let panicInterval = setInterval(() => {
+                const line = document.createElement('div');
+                line.className = 'line error-line';
+                
+                // Rastgele Hex (Bellek) kodları üret
+                let hexDump = "";
+                for(let i=0; i<12; i++) {
+                    hexDump += Math.floor(Math.random()*16777215).toString(16).padStart(6, '0').toUpperCase() + " ";
                 }
-                ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
-                ctx.lineWidth = 1 + Math.random() * 2;
-                ctx.stroke();
-            }
+                
+                let timeStamp = (Math.random() * 100).toFixed(6);
+                let errorTypes = [
+                    "KERNEL PANIC - NOT SYNCING: FATAL EXCEPTION",
+                    "BUG: unable to handle kernel paging request at",
+                    "Oops: 0000 [#1] SMP",
+                    "CPU: 0 PID: 1 Comm: init Not tainted",
+                    "Hardware name: System manufacturer System Product Name",
+                    "RIP: 0010:[<ffffffff81483863>]",
+                    "RSP: 0018:ffff88007a8b3e58 EFLAGS: 00000286",
+                    "Dumping memory..."
+                ];
+                let randomMsg = errorTypes[Math.floor(Math.random() * errorTypes.length)];
+                
+                line.textContent = `[ ${timeStamp}] ${randomMsg} ${hexDump}`;
+                output.appendChild(line);
+                window.scrollTo(0, document.body.scrollHeight);
+            }, 25); // Yazılar inanılmaz hızlı akacak
 
-            // Birkaç impact noktası
-            for (let i = 0; i < 3; i++) {
-                const impactX = Math.random() * canvas.width;
-                const impactY = Math.random() * canvas.height;
-                drawCrack(impactX, impactY, 20, 0.4);
-            }
-            
-            // İsteğe bağlı: Cam kırılma sesi (Hacker filmi hissi için)
-            // const shatterSound = new Audio('https://www.soundjay.com/break-glass-1.mp3'); 
-            // shatterSound.play(); 
-
-            // 3 saniye sonra ekranı tamamen karart ve sekmeyi kapatmayı dene
+            // 3.5 saniye sonra ekranı kitle ve çökert
             setTimeout(() => {
-                document.body.innerHTML = "";
-                document.body.style.backgroundColor = "black";
-                // canvas.parentNode.removeChild(canvas); // Canvas'ı kaldır
-                window.close();
-            }, 3000);
+                clearInterval(panicInterval);
+                document.body.innerHTML = `
+                    <div style="color: #ff3333; font-family: 'Courier New', monospace; padding: 20px; font-weight: bold; font-size: 18px; text-shadow: 0 0 5px red;">
+                        [CRITICAL] SYSTEM HALTED.<br>
+                        [CRITICAL] PHYSICAL MEMORY DUMP COMPLETE.<br>
+                        [CRITICAL] UNAUTHORIZED ACCESS DETECTED.<br><br>
+                        CONNECTION TERMINATED.
+                    </div>
+                `;
+                // 2 saniye sonra sekmeyi kapatmayı dene
+                setTimeout(() => window.close(), 2000);
+            }, 3500);
         }
 
         async function startSequence() {
@@ -204,19 +197,20 @@
                 } 
                 else if (answer === 'hayır' || answer === 'h') {
                     await wait(500);
-                    await typeText("> İşlem reddedildi. Güvenlik protokolü devreye giriyor...");
-                    await wait(1000);
-                    await typeText("> İZİNSİZ GİRİŞ GİRİŞİMİ TESPİT EDİLDİ!");
+                    // Uyarı yazıları kırmızı renkte yazılacak
+                    await typeText("> İşlem reddedildi. Güvenlik protokolü devreye giriyor...", 35, true);
+                    await wait(800);
+                    await typeText("> İZİNSİZ GİRİŞ GİRİŞİMİ TESPİT EDİLDİ!", 20, true);
                     await wait(500);
-                    await typeText("> Bağlantı zorla KESİLİYOR...");
-                    await wait(1000);
+                    await typeText("> KORUMA PROSEDÜRÜ BAŞLATILIYOR...", 20, true);
+                    await wait(800);
                     
-                    // EKRA ÇATLAMASI VE KAPANMASI EFEKTİNİ BAŞLAT
-                    startCrackedScreen();
+                    // GERÇEKÇİ SİSTEM ÇÖKME EFEKTİNİ BAŞLAT
+                    startKernelPanic();
                 } 
                 else {
                     await wait(500);
-                    await typeText("> HATA: Geçersiz komut algılandı. Sistem kilitleniyor.");
+                    await typeText("> HATA: Geçersiz komut algılandı. Sistem kilitleniyor.", 35, true);
                     await wait(800);
                     document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:20%; font-family:Courier New;'>Kritik Hata: SİSTEM KİLİTLENDİ</h1>";
                 }
