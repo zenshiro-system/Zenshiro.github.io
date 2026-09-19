@@ -83,7 +83,7 @@
             return "Bilinmeyen_Sistem";
         }
 
-        async function typeText(text, delay = 35, isError = false) {
+        async function typeText(text, delay = 40, isError = false) {
             const line = document.createElement('div');
             line.className = 'line';
             if (isError) line.classList.add('error-line');
@@ -176,14 +176,17 @@
 
                 if (answer === 'evet' || answer === 'e') {
                     await wait(500);
-                    await typeText("> Yetki onaylandı. Gizli protokole erişiliyor...");
+                    await typeText("> Yetki onaylandı. Şifreli protokole geçiliyor...");
                     await wait(1000);
                     await typeText("--------------------------------------------------");
                     await typeText("KOD ADI: Zenshiro");
-                    await typeText("GÖREV: A-73 ağ geçidine sız, gölge verileri manipüle et ve izleri sil.");
-                    await typeText("ŞİFRELEME: **** (Kuantum Kilidi Devrede - Müdahale Edilemez)");
+                    await wait(500);
+                    await typeText("GÖREV: Çevreni dikkatle incele. 'Tilki' kod adlı ajanı tespit et. Unutma, şu an en yakınındaki kişi bile senin için bir tehdit olabilir. Hiçbir şeye güvenme, kimseye belli etme.");
+                    await wait(500);
+                    await typeText("ŞİFRELEME: **** (Sistem Dışı Müdahaleye Kapalı)");
                     await typeText("--------------------------------------------------");
-                    await typeText("> Görevi yapın, beklemede kalın..._");
+                    await wait(800);
+                    await typeText("> Görevi yapın, sizinle iletişime geçilecek..._");
                 } 
                 else if (answer === 'hayır' || answer === 'h') {
                     await wait(500);
