@@ -97,11 +97,12 @@
             return new Promise(resolve => setTimeout(resolve, ms));
         }
         
-        // Televizyon Karıncalanması (Static Noise) Efekti
-        function startStaticNoise() {
+        // Ekran Çatlaması ve Kapanması (Cracked Screen) Efekti
+        function startCrackedScreen() {
             document.body.innerHTML = ""; // Mevcut terminali sil
             document.body.style.margin = "0";
             document.body.style.padding = "0";
+            document.body.style.backgroundColor = "#050505";
             
             const canvas = document.createElement('canvas');
             canvas.style.position = 'fixed';
@@ -112,30 +113,47 @@
             canvas.style.zIndex = '9999';
             document.body.appendChild(canvas);
 
-            const ctx = canvas.getContext('2d', { alpha: false });
+            const ctx = canvas.getContext('2d', { alpha: true });
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
 
-            let animationId;
-            function drawNoise() {
-                const imageData = ctx.createImageData(canvas.width, canvas.height);
-                const buffer = new Uint32Array(imageData.data.buffer);
-                
-                // Rastgele siyah-beyaz pikseller oluştur
-                for (let i = 0; i < buffer.length; i++) {
-                    buffer[i] = Math.random() < 0.5 ? 0xff000000 : 0xffffffff;
+            // Çatlakları çiz
+            function drawCrack(x, y, segments, branchProbability) {
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                let currentX = x;
+                let currentY = y;
+                for (let i = 0; i < segments; i++) {
+                    const length = Math.random() * 20 + 10;
+                    const angle = Math.random() * Math.PI * 2;
+                    currentX += Math.cos(angle) * length;
+                    currentY += Math.sin(angle) * length;
+                    ctx.lineTo(currentX, currentY);
+                    if (Math.random() < branchProbability && i < segments - 2) {
+                        drawCrack(currentX, currentY, segments - i - 1, branchProbability * 0.5);
+                    }
                 }
-                
-                ctx.putImageData(imageData, 0, 0);
-                animationId = requestAnimationFrame(drawNoise);
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
+                ctx.lineWidth = 1 + Math.random() * 2;
+                ctx.stroke();
             }
-            drawNoise();
+
+            // Birkaç impact noktası
+            for (let i = 0; i < 3; i++) {
+                const impactX = Math.random() * canvas.width;
+                const impactY = Math.random() * canvas.height;
+                drawCrack(impactX, impactY, 20, 0.4);
+            }
             
-            // 3 saniye sonra karıncalanmayı durdur ve sekmeyi kapatmayı dene
+            // İsteğe bağlı: Cam kırılma sesi (Hacker filmi hissi için)
+            // const shatterSound = new Audio('https://www.soundjay.com/break-glass-1.mp3'); 
+            // shatterSound.play(); 
+
+            // 3 saniye sonra ekranı tamamen karart ve sekmeyi kapatmayı dene
             setTimeout(() => {
-                cancelAnimationFrame(animationId);
                 document.body.innerHTML = "";
                 document.body.style.backgroundColor = "black";
+                // canvas.parentNode.removeChild(canvas); // Canvas'ı kaldır
                 window.close();
             }, 3000);
         }
@@ -193,8 +211,8 @@
                     await typeText("> Bağlantı zorla KESİLİYOR...");
                     await wait(1000);
                     
-                    // KARINCALANMA EFEKTİNİ BAŞLAT
-                    startStaticNoise();
+                    // EKRA ÇATLAMASI VE KAPANMASI EFEKTİNİ BAŞLAT
+                    startCrackedScreen();
                 } 
                 else {
                     await wait(500);
