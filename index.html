@@ -111,7 +111,7 @@
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
-        // Hızlı Dosya Akışı Efekti
+        // HAYIR DENDİĞİNDE ÇALIŞAN DOSYA AKIŞI (HATA HATA) EFEKTİ
         function startFileDump() {
             let fileExtensions = ['.sys', '.dll', '.dat', '.bin', '.so', '.exe', '.cfg', '.log', '.enc', '.key'];
             let filePrefixes = ['kernel', 'system', 'config', 'user', 'data', 'module', 'network', 'security', 'cache', 'root'];
@@ -121,7 +121,6 @@
                 line.className = 'line error-line';
                 
                 let files = "";
-                // Tek satırda birden fazla dosya göstererek hızı ve karmaşayı artırıyoruz
                 for(let i=0; i<3; i++) { 
                     let pre = filePrefixes[Math.floor(Math.random() * filePrefixes.length)];
                     let ext = fileExtensions[Math.floor(Math.random() * fileExtensions.length)];
@@ -132,9 +131,8 @@
                 line.textContent = files;
                 output.appendChild(line);
                 window.scrollTo(0, document.body.scrollHeight);
-            }, 30); // 30 milisaniyede bir yeni satır basar (çok hızlı)
+            }, 30); 
 
-            // 3 saniye sonra dosyaların akmasını durdur ve ERROR ERROR ver
             setTimeout(() => {
                 clearInterval(dumpInterval);
                 document.body.innerHTML = `
@@ -145,8 +143,56 @@
                         </h1>
                     </div>
                 `;
-                // 2.5 saniye sonra da sekmeyi kapatmayı dene
                 setTimeout(() => window.close(), 2500);
+            }, 3000);
+        }
+
+        // YANLIŞ CEVAP YAZILDIĞINDA ÇALIŞAN KURUKAFA VE FLICKER EFEKTİ
+        function startSkullGlitch() {
+            document.body.innerHTML = `
+                <div id="skull-box" style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #000; overflow: hidden;">
+                    <pre id="skull-art" style="color: #ff0000; font-size: 1.5rem; font-weight: bold; text-shadow: 0 0 15px #ff0000; text-align: center; line-height: 1.1;">
+       ______
+    .-"      "-.
+   /            \\
+  |              |
+  |,  .-.  .-.  ,|
+  | )(__/  \\__)( |
+  |/     /\\     \\|
+  (_     ^^     _)
+   \\__|IIIIII|__/
+    | \\IIIIII/ |
+    \\          /
+     \`--------\`
+                    </pre>
+                    <h1 style="color: #ff0000; font-family: 'Courier New', monospace; font-size: 3rem; text-shadow: 0 0 20px #ff0000; margin-top: 20px; text-align: center;">SİSTEM KİLİTLENDİ</h1>
+                </div>
+            `;
+            
+            let isRed = false;
+            let skullBox = document.getElementById('skull-box');
+            let skullArt = document.getElementById('skull-art');
+            
+            // Ekranın çılgın gibi kırmızı/siyah gidip gelmesi
+            let flickerInterval = setInterval(() => {
+                if (isRed) {
+                    skullBox.style.backgroundColor = "#000000";
+                    skullArt.style.color = "#ff0000";
+                    skullArt.style.transform = "translate(3px, -3px)";
+                } else {
+                    skullBox.style.backgroundColor = "#330000"; // Koyu kırmızı arka plan
+                    skullArt.style.color = "#ffffff"; // Beyaz kurukafa
+                    skullArt.style.transform = "translate(-3px, 3px) scale(1.1)"; // Hafif büyüyüp titreme
+                }
+                isRed = !isRed;
+            }, 50); // Saniyede 20 kez renk değiştirir
+
+            // 3 saniye sonra tamamen karart ve sekmeyi kapat
+            setTimeout(() => {
+                clearInterval(flickerInterval);
+                document.body.innerHTML = "";
+                document.body.style.backgroundColor = "black";
+                window.close();
             }, 3000);
         }
 
@@ -176,6 +222,7 @@
                 output.appendChild(echo);
 
                 if (answer === 'evet' || answer === 'e') {
+                    // EVET SENARYOSU (Gizli Görev)
                     await wait(500);
                     await typeText("> Yetki onaylandı. Şifreli protokole geçiliyor...");
                     await wait(1000);
@@ -190,6 +237,7 @@
                     await typeText("> Görevi yapın, sizinle iletişime geçilecek..._");
                 } 
                 else if (answer === 'hayır' || answer === 'h') {
+                    // HAYIR SENARYOSU (Veri silinme ve ERROR ERROR)
                     await wait(500);
                     await typeText("> İşlem reddedildi. Güvenlik protokolü devreye giriyor...", 35, true);
                     await wait(800);
@@ -197,15 +245,16 @@
                     await wait(500);
                     await typeText("> SİSTEM VERİLERİ SİLİNİYOR...", 35, true);
                     await wait(800);
-                    
-                    // DOSYA AKIŞI EFEKTİNİ BAŞLAT
                     startFileDump();
                 } 
                 else {
+                    // YANLIŞ CEVAP SENARYOSU (Kurukafa ve Ekranın çıldırması)
                     await wait(500);
-                    await typeText("> HATA: Geçersiz komut algılandı. Sistem kilitleniyor.", 35, true);
+                    await typeText("> HATA: Geçersiz komut algılandı...", 35, true);
+                    await wait(500);
+                    await typeText("> SİSTEM KİLİTLENİYOR!", 20, true);
                     await wait(800);
-                    document.body.innerHTML = "<h1 style='color:red; text-align:center; margin-top:20%; font-family:Courier New;'>Kritik Hata: SİSTEM KİLİTLENDİ</h1>";
+                    startSkullGlitch();
                 }
             }
         });
