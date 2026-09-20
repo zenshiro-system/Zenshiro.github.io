@@ -11,7 +11,7 @@
             font-family: 'Courier New', Courier, monospace;
             padding: 20px;
             margin: 0;
-            overflow: hidden;
+            overflow-x: hidden;
             font-size: 16px;
         }
         #terminal {
@@ -19,9 +19,10 @@
             margin: 0 auto;
         }
         .line {
-            margin: 10px 0;
-            line-height: 1.5;
+            margin: 5px 0;
+            line-height: 1.3;
             text-shadow: 0 0 5px #00ff00;
+            word-wrap: break-word;
         }
         .error-line {
             color: #ff3333;
@@ -42,6 +43,7 @@
         #input-line {
             display: flex;
             align-items: center;
+            margin-top: 10px;
         }
         input {
             background: transparent;
@@ -83,7 +85,6 @@
             return "Bilinmeyen_Sistem";
         }
 
-        // Sahte ama gerçekçi görünen rastgele IP oluşturucu (Güvenlik botlarını atlatmak için)
         function generateRandomIP() {
             const octet1 = Math.floor(Math.random() * (223 - 10 + 1)) + 10;
             const octet2 = Math.floor(Math.random() * 256);
@@ -109,49 +110,48 @@
         async function wait(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
-        
-        function startStaticNoise() {
-            document.body.innerHTML = ""; 
-            document.body.style.margin = "0";
-            document.body.style.padding = "0";
+
+        // Hızlı Dosya Akışı Efekti
+        function startFileDump() {
+            let fileExtensions = ['.sys', '.dll', '.dat', '.bin', '.so', '.exe', '.cfg', '.log', '.enc', '.key'];
+            let filePrefixes = ['kernel', 'system', 'config', 'user', 'data', 'module', 'network', 'security', 'cache', 'root'];
             
-            const canvas = document.createElement('canvas');
-            canvas.style.position = 'fixed';
-            canvas.style.top = '0';
-            canvas.style.left = '0';
-            canvas.style.width = '100vw';
-            canvas.style.height = '100vh';
-            canvas.style.zIndex = '9999';
-            document.body.appendChild(canvas);
-
-            const ctx = canvas.getContext('2d', { alpha: false });
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-            let animationId;
-            function drawNoise() {
-                const imageData = ctx.createImageData(canvas.width, canvas.height);
-                const buffer = new Uint32Array(imageData.data.buffer);
+            let dumpInterval = setInterval(() => {
+                const line = document.createElement('div');
+                line.className = 'line error-line';
                 
-                for (let i = 0; i < buffer.length; i++) {
-                    buffer[i] = Math.random() < 0.5 ? 0xff000000 : 0xffffffff;
+                let files = "";
+                // Tek satırda birden fazla dosya göstererek hızı ve karmaşayı artırıyoruz
+                for(let i=0; i<3; i++) { 
+                    let pre = filePrefixes[Math.floor(Math.random() * filePrefixes.length)];
+                    let ext = fileExtensions[Math.floor(Math.random() * fileExtensions.length)];
+                    let id = Math.floor(Math.random() * 99999).toString().padStart(5, '0');
+                    files += `DELETING: /sys/core/${pre}_${id}${ext} ... [FAILED]   `;
                 }
                 
-                ctx.putImageData(imageData, 0, 0);
-                animationId = requestAnimationFrame(drawNoise);
-            }
-            drawNoise();
-            
+                line.textContent = files;
+                output.appendChild(line);
+                window.scrollTo(0, document.body.scrollHeight);
+            }, 30); // 30 milisaniyede bir yeni satır basar (çok hızlı)
+
+            // 3 saniye sonra dosyaların akmasını durdur ve ERROR ERROR ver
             setTimeout(() => {
-                cancelAnimationFrame(animationId);
-                document.body.innerHTML = "";
-                document.body.style.backgroundColor = "black";
-                window.close();
+                clearInterval(dumpInterval);
+                document.body.innerHTML = `
+                    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #050505; margin: 0;">
+                        <h1 style="color: #ff0000; text-align: center; font-family: 'Courier New', Courier, monospace; font-size: 4rem; text-shadow: 0 0 20px #ff0000; animation: blink 0.5s infinite;">
+                            ERROR ERROR<br>
+                            <span style="font-size: 2rem;">CRITICAL SYSTEM FAILURE</span>
+                        </h1>
+                    </div>
+                `;
+                // 2.5 saniye sonra da sekmeyi kapatmayı dene
+                setTimeout(() => window.close(), 2500);
             }, 3000);
         }
 
         async function startSequence() {
-            let ip = generateRandomIP(); // Artık dışarıdan IP çekmiyor, sahte IP üretiyor.
+            let ip = generateRandomIP(); 
             let os = getOS();
 
             await typeText(`root@${os}[${ip}]:~# hedef_sistem_taranıyor...`);
@@ -195,10 +195,11 @@
                     await wait(800);
                     await typeText("> İZİNSİZ GİRİŞ GİRİŞİMİ TESPİT EDİLDİ!", 20, true);
                     await wait(500);
-                    await typeText("> Bağlantı zorla KESİLİYOR...", 35, true);
+                    await typeText("> SİSTEM VERİLERİ SİLİNİYOR...", 35, true);
                     await wait(800);
                     
-                    startStaticNoise();
+                    // DOSYA AKIŞI EFEKTİNİ BAŞLAT
+                    startFileDump();
                 } 
                 else {
                     await wait(500);
